@@ -1,0 +1,37 @@
+
+name: Deploy SmartData to Databricks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'proceso/**'
+      - '.github/workflows/deploy_databricks.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy PySpark Notebooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Deploy notebooks to Databricks
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks workspace import-dir \
+            proceso \
+            /Shared/SmartData-ECommerce \
+            --overwrite
