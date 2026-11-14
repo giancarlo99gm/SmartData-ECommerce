@@ -26,11 +26,37 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
+      - name: Validate Databricks secrets
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          test -n "$DATABRICKS_HOST" || {
+            echo "ERROR: DATABRICKS_HOST no configurado"
+            exit 1
+          }
+
+          test -n "$DATABRICKS_TOKEN" || {
+            echo "ERROR: DATABRICKS_TOKEN no configurado"
+            exit 1
+          }
+
+          echo "Secretos configurados correctamente"
+
+      - name: Verify Databricks connection
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks current-user me
+
       - name: Deploy notebooks to Databricks
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
+          databricks workspace mkdirs /Shared/SmartData-ECommerce
+
           databricks workspace import-dir \
             proceso \
             /Shared/SmartData-ECommerce \
