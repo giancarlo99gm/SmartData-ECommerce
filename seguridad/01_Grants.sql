@@ -16,3 +16,7 @@ TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
 GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE
 ON SCHEMA smartdata_dev.gold
 TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
+--acceso lectura
+GRANT READ FILES
+ON EXTERNAL LOCATION ext_raw_dev
+TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
