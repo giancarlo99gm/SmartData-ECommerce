@@ -1,33 +1,18 @@
--- Permisos para el usuario del proyecto
+-- SmartData-ECommerce
+-- Permisos de Unity Catalog para automatización DEV
 
 GRANT USE CATALOG
 ON CATALOG smartdata_dev
-TO `giancarlomz.1997@hotmail.com`;
+TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
 
--- Acceso a los esquemas Medallion
-
-GRANT USE SCHEMA
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE
 ON SCHEMA smartdata_dev.bronze
-TO `giancarlomz.1997@hotmail.com`;
+TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
 
-GRANT USE SCHEMA
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE
 ON SCHEMA smartdata_dev.silver
-TO `giancarlomz.1997@hotmail.com`;
+TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
 
-GRANT USE SCHEMA
+GRANT USE SCHEMA, SELECT, MODIFY, CREATE TABLE
 ON SCHEMA smartdata_dev.gold
-TO `giancarlomz.1997@hotmail.com`;
-
--- Lectura de tablas existentes y futuras
-
-GRANT SELECT
-ON SCHEMA smartdata_dev.bronze
-TO `giancarlomz.1997@hotmail.com`;
-
-GRANT SELECT
-ON SCHEMA smartdata_dev.silver
-TO `giancarlomz.1997@hotmail.com`;
-
-GRANT SELECT
-ON SCHEMA smartdata_dev.gold
-TO `giancarlomz.1997@hotmail.com`;
+TO `febfa147-5c3b-49eb-a400-cacfeeda155b`;
