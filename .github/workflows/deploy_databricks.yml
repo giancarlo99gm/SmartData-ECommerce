@@ -6,58 +6,33 @@ on:
     branches:
       - main
     paths:
-      - 'proceso/**'
-      - '.github/workflows/deploy_databricks.yml'
+      - "proceso/**"
+      - "scripts/**"
+      - "seguridad/**"
+      - ".github/workflows/deploy_databricks.yml"
 
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
-    name: Deploy PySpark Notebooks
     runs-on: ubuntu-latest
 
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+
     steps:
-      - name: Checkout repository
+      - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Install Databricks CLI
+      - name: Instalar Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Validate Databricks secrets
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      - name: Desplegar notebooks
         run: |
-          test -n "$DATABRICKS_HOST" || {
-            echo "ERROR: DATABRICKS_HOST no configurado"
-            exit 1
-          }
+          databricks workspace import-dir proceso /Shared/SmartData-ECommerce --overwrite
 
-          test -n "$DATABRICKS_TOKEN" || {
-            echo "ERROR: DATABRICKS_TOKEN no configurado"
-            exit 1
-          }
-
-          echo "Secretos configurados correctamente"
-
-      - name: Verify Databricks connection
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      - name: Confirmar despliegue
         run: |
-          databricks current-user me
-
-      - name: Deploy notebooks to Databricks
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-        run: |
-          databricks workspace mkdirs /Shared/SmartData-ECommerce
-
-          databricks workspace import-dir \
-            proceso \
-            /Shared/SmartData-ECommerce \
-            --overwrite
+          echo "Despliegue de SmartData-ECommerce finalizado"
