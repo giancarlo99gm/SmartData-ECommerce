@@ -11,8 +11,21 @@ from datetime import datetime
 
 # 1. CONFIGURACION GENERAL
 
-CATALOGO = "smartdata_dev"
+
+# Configuración del ambiente DEV / PROD
+dbutils.widgets.text("catalogo", "smartdata_dev")
+
+CATALOGO = dbutils.widgets.get("catalogo")
 ESQUEMA = "bronze"
+
+# Validar que el catálogo sea permitido
+if CATALOGO not in ["smartdata_dev", "smartdata_prod"]:
+    raise ValueError(
+        f"Catálogo no permitido: {CATALOGO}"
+    )
+
+print(f"Catálogo seleccionado: {CATALOGO}")
+
 
 RUTA_RAW = (
     "abfss://raw@stsmartdatacomercial01."
