@@ -29,12 +29,12 @@ print(f"Catálogo seleccionado: {CATALOGO}")
 # 2. VALIDAR CATALOGO
 # ============================================================
 
-if not spark.catalog.catalogExists(CATALOGO):
-    raise ValueError(
-        f"El catálogo {CATALOGO} no existe."
-    )
+# Verificar que el catálogo exista y sea accesible.
+# USE CATALOG genera un error si no existe o no hay permisos.
 
 spark.sql(f"USE CATALOG `{CATALOGO}`")
+
+print(f"Catálogo disponible: {CATALOGO}")
 
 # ============================================================
 # 3. PREPARAR ESQUEMAS MEDALLION
