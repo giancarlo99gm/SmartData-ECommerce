@@ -15,7 +15,19 @@ from pyspark.sql.window import Window
 # 1. CONFIGURACION GENERAL
 # ============================================================
 
-CATALOGO = "smartdata_dev"
+
+# Configuración del ambiente DEV / PROD
+dbutils.widgets.text("catalogo", "smartdata_dev")
+
+CATALOGO = dbutils.widgets.get("catalogo")
+
+if CATALOGO not in ["smartdata_dev", "smartdata_prod"]:
+    raise ValueError(
+        f"Catálogo no permitido: {CATALOGO}"
+    )
+
+print(f"Catálogo seleccionado: {CATALOGO}")
+
 ESQUEMA_ORIGEN = "bronze"
 ESQUEMA_DESTINO = "silver"
 
