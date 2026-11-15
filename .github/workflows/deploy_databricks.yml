@@ -13,14 +13,24 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: smartdata-ecommerce-dev
+  cancel-in-progress: false
+
 jobs:
   deploy:
+    name: Deploy y ejecutar ETL
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      JOB_ID: "311114614545262"
 
     steps:
       - name: Descargar repositorio
@@ -29,14 +39,32 @@ jobs:
       - name: Instalar Databricks CLI
         uses: databricks/setup-cli@main
 
+      - name: Verificar conexion OAuth
+        run: |
+          databricks current-user me
+
       - name: Desplegar notebooks
         run: |
-          databricks workspace import-dir proceso /Shared/SmartData-ECommerce --overwrite
+          databricks workspace import-dir \
+            proceso \
+            /Shared/SmartData-ECommerce \
+            --overwrite
 
-      - name: Ejecutar Job SmartData ECommerce DEV
+      - name: Ejecutar Job Bronze Silver Gold
         run: |
-          databricks jobs run-now 311114614545262
+          echo "Iniciando Job: ${JOB_ID}"
+
+          databricks jobs run-now "${JOB_ID}" \
+            --timeout 45m
+
+          echo "Job finalizado correctamente"
 
       - name: Confirmar despliegue
+        if: success()
         run: |
-          echo "Despliegue de SmartData-ECommerce finalizado"
+          echo "===================================="
+          echo "SMARTDATA E-COMMERCE"
+          echo "Despliegue: CORRECTO"
+          echo "Ejecucion ETL: CORRECTA"
+          echo "Bronze - Silver - Gold"
+          echo "===================================="
