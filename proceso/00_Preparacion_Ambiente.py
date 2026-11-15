@@ -1,4 +1,5 @@
 
+# Databricks notebook source
 # ============================================================
 # PROYECTO: SMARTDATA E-COMMERCE
 # NOTEBOOK: 00_Preparacion_Ambiente
