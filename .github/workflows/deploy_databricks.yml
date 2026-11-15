@@ -1,36 +1,22 @@
 
-name: Deploy SmartData to Databricks
+name: Deploy SmartData ECommerce PROD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "proceso/**"
-      - "scripts/**"
-      - "seguridad/**"
-      - ".github/workflows/deploy_databricks.yml"
-
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: smartdata-ecommerce-dev
-  cancel-in-progress: false
-
 jobs:
-  deploy:
-    name: Deploy y ejecutar ETL
+  deploy_prod:
+    name: Desplegar y ejecutar ETL PROD
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
     env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-      JOB_ID: "311114614545262"
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_PROD }}
+      JOB_ID: "228868758540045"
 
     steps:
       - name: Descargar repositorio
@@ -39,13 +25,14 @@ jobs:
       - name: Instalar Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Verificar conexion OAuth
-        run: |
-          databricks current-user me
+      - name: Verificar conexion PROD
+        run: databricks current-user me
 
-      
-      
-      - name: Desplegar notebooks
+      - name: Crear carpeta en PROD
+        run: |
+          databricks workspace mkdirs /Shared/SmartData-ECommerce
+
+      - name: Desplegar notebooks a PROD
         run: |
           for notebook in \
             00_Preparacion_Ambiente \
@@ -62,21 +49,10 @@ jobs:
               --overwrite
           done
 
-      - name: Ejecutar Job Bronze Silver Gold
+      - name: Ejecutar Job PROD
         run: |
-          echo "Iniciando Job: ${JOB_ID}"
-
-          databricks jobs run-now "${JOB_ID}" \
-            --timeout 45m
-
-          echo "Job finalizado correctamente"
+          databricks jobs run-now "${JOB_ID}" --timeout 45m
 
       - name: Confirmar despliegue
-        if: success()
         run: |
-          echo "===================================="
-          echo "SMARTDATA E-COMMERCE"
-          echo "Despliegue: CORRECTO"
-          echo "Ejecucion ETL: CORRECTA"
-          echo "Bronze - Silver - Gold"
-          echo "===================================="
+          echo "Despliegue y ejecucion PROD completados"
