@@ -8,13 +8,27 @@
 
 from pyspark.sql import functions as F
 
+
 # ============================================================
-# 1. CONFIGURACION
+# 1. CONFIGURACION GENERAL DEV / PROD
 # ============================================================
 
-CATALOGO = "smartdata_dev"
+dbutils.widgets.text("catalogo", "smartdata_dev")
+
+CATALOGO = dbutils.widgets.get("catalogo")
+
+if CATALOGO not in ["smartdata_dev", "smartdata_prod"]:
+    raise ValueError(
+        f"Catálogo no permitido: {CATALOGO}"
+    )
+
 ESQUEMA_ORIGEN = "silver"
 ESQUEMA_DESTINO = "gold"
+
+print(f"Catálogo seleccionado: {CATALOGO}")
+print(f"Origen: {CATALOGO}.{ESQUEMA_ORIGEN}")
+print(f"Destino: {CATALOGO}.{ESQUEMA_DESTINO}")
+
 
 spark.sql(f"USE CATALOG `{CATALOGO}`")
 
