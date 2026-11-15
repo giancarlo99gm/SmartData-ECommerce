@@ -49,9 +49,9 @@ jobs:
               --overwrite
           done
 
-      - name: Ejecutar Job PROD
-        run: |
-          databricks jobs run-now "${JOB_ID}" --timeout 45m
+      #- name: Ejecutar Job PROD
+       # run: |
+        #  databricks jobs run-now "${JOB_ID}" --timeout 45m
 
       - name: Confirmar despliegue
         run: |
