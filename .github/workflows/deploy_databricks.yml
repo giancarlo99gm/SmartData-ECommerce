@@ -43,12 +43,24 @@ jobs:
         run: |
           databricks current-user me
 
+      
+      
       - name: Desplegar notebooks
         run: |
-          databricks workspace import-dir \
-            proceso \
-            /Shared/SmartData-ECommerce \
-            --overwrite
+          for notebook in \
+            00_Preparacion_Ambiente \
+            01_Ingesta_Raw_Bronze \
+            02_Transformacion_Silver \
+            03_Procesamiento_Gold \
+            04_Grants
+          do
+            databricks workspace import \
+              "/Shared/SmartData-ECommerce/${notebook}" \
+              --file "proceso/${notebook}.py" \
+              --language PYTHON \
+              --format SOURCE \
+              --overwrite
+          done
 
       - name: Ejecutar Job Bronze Silver Gold
         run: |
