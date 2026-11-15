@@ -1,0 +1,703 @@
+{
+  "datasets": [
+    {
+      "name": "departamentos",
+      "displayName": "Departamentos",
+      "queryLines": [
+        "SELECT\n",
+        "  COALESCE(department, 'Sin departamento') AS department,\n",
+        "  total_unidades,\n",
+        "  total_pedidos,\n",
+        "  total_clientes\n",
+        "FROM\n",
+        "  smartdata_dev.gold.kpi_departamentos\n",
+        "ORDER BY\n",
+        "  total_unidades DESC"
+      ]
+    },
+    {
+      "name": "top_productos",
+      "displayName": "Top 15 Productos",
+      "queryLines": [
+        "SELECT\n",
+        "  product_name,\n",
+        "  department,\n",
+        "  aisle,\n",
+        "  total_unidades,\n",
+        "  total_pedidos,\n",
+        "  total_clientes,\n",
+        "  total_recompras,\n",
+        "  ROUND(porcentaje_recompra, 2) AS porcentaje_recompra\n",
+        "FROM\n",
+        "  smartdata_dev.gold.kpi_productos\n",
+        "WHERE\n",
+        "  product_name IS NOT NULL\n",
+        "ORDER BY\n",
+        "  total_unidades DESC\n",
+        "LIMIT 15"
+      ]
+    },
+    {
+      "name": "kpis_generales",
+      "displayName": "KPIs Generales",
+      "queryLines": [
+        "SELECT\n",
+        "  COUNT(DISTINCT order_id) AS total_pedidos,\n",
+        "  COUNT(DISTINCT user_id) AS clientes_unicos,\n",
+        "  COUNT(DISTINCT product_id) AS productos_distintos,\n",
+        "  COUNT(*) AS productos_comprados,\n",
+        "  ROUND(AVG(CAST(reordered AS DOUBLE)) * 100, 2) AS porcentaje_recompra\n",
+        "FROM\n",
+        "  smartdata_dev.gold.fact_compras"
+      ]
+    },
+    {
+      "name": "top_clientes",
+      "displayName": "Top 15 Clientes",
+      "queryLines": [
+        "SELECT\n",
+        "  user_id,\n",
+        "  total_pedidos,\n",
+        "  total_productos_comprados,\n",
+        "  productos_diferentes,\n",
+        "  total_recompras,\n",
+        "  ROUND(total_recompras * 100.0 / NULLIF(total_productos_comprados, 0), 2) AS porcentaje_recompra\n",
+        "FROM\n",
+        "  smartdata_dev.gold.kpi_clientes\n",
+        "ORDER BY\n",
+        "  total_productos_comprados DESC\n",
+        "LIMIT 15"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "21b42adf",
+      "displayName": "SmartData E-Commerce - DEV",
+      "layout": [
+        {
+          "widget": {
+            "name": "titulo",
+            "spec": {
+              "widgetType": "text",
+              "version": 1,
+              "encodings": {
+                "text": {
+                  "lines": [
+                    "## <span style=\"text-align:center;display:block;\">SmartData E-Commerce - Dashboard Ejecutivo</span>\n",
+                    "\n",
+                    "<span style=\"text-align:center;display:block;\">Indicadores de pedidos, clientes, productos y recompra (sin importes monetarios).</span>"
+                  ],
+                  "fields": []
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_pedidos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpis_generales",
+                  "fields": [
+                    {
+                      "name": "sum(total_pedidos)",
+                      "expression": "SUM(`total_pedidos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total de Pedidos"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_pedidos)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_clientes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpis_generales",
+                  "fields": [
+                    {
+                      "name": "sum(clientes_unicos)",
+                      "expression": "SUM(`clientes_unicos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Clientes Únicos",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(clientes_unicos)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_recompra",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpis_generales",
+                  "fields": [
+                    {
+                      "name": "sum(porcentaje_recompra)",
+                      "expression": "SUM(`porcentaje_recompra`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "% de Recompra",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(porcentaje_recompra)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_unidades",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpis_generales",
+                  "fields": [
+                    {
+                      "name": "sum(productos_comprados)",
+                      "expression": "SUM(`productos_comprados`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Productos Comprados (unidades)"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(productos_comprados)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_distintos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpis_generales",
+                  "fields": [
+                    {
+                      "name": "sum(productos_distintos)",
+                      "expression": "SUM(`productos_distintos`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Productos Distintos"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(productos_distintos)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 2,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_productos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_productos",
+                  "fields": [
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "sum(total_unidades)",
+                      "expression": "SUM(`total_unidades`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top 15 Productos por Unidades"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "product_name",
+                  "displayName": "product_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_unidades)",
+                  "displayName": "total_unidades",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "product_name",
+                  "displayName": "product_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_departamentos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "departamentos",
+                  "fields": [
+                    {
+                      "name": "department",
+                      "expression": "`department`"
+                    },
+                    {
+                      "name": "sum(total_unidades)",
+                      "expression": "SUM(`total_unidades`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Unidades por Departamento",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "department",
+                  "displayName": "department",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_unidades)",
+                  "displayName": "total_unidades",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "department",
+                  "displayName": "department",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "tabla_productos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_productos",
+                  "fields": [
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "department",
+                      "expression": "`department`"
+                    },
+                    {
+                      "name": "aisle",
+                      "expression": "`aisle`"
+                    },
+                    {
+                      "name": "total_unidades",
+                      "expression": "`total_unidades`"
+                    },
+                    {
+                      "name": "total_pedidos",
+                      "expression": "`total_pedidos`"
+                    },
+                    {
+                      "name": "total_clientes",
+                      "expression": "`total_clientes`"
+                    },
+                    {
+                      "name": "total_recompras",
+                      "expression": "`total_recompras`"
+                    },
+                    {
+                      "name": "porcentaje_recompra",
+                      "expression": "`porcentaje_recompra`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Ranking de Productos"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "product_name"
+                  },
+                  {
+                    "fieldName": "department"
+                  },
+                  {
+                    "fieldName": "aisle"
+                  },
+                  {
+                    "fieldName": "total_unidades"
+                  },
+                  {
+                    "fieldName": "total_pedidos"
+                  },
+                  {
+                    "fieldName": "total_clientes"
+                  },
+                  {
+                    "fieldName": "total_recompras"
+                  },
+                  {
+                    "fieldName": "porcentaje_recompra"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "tabla_departamentos",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "departamentos",
+                  "fields": [
+                    {
+                      "name": "department",
+                      "expression": "`department`"
+                    },
+                    {
+                      "name": "total_unidades",
+                      "expression": "`total_unidades`"
+                    },
+                    {
+                      "name": "total_pedidos",
+                      "expression": "`total_pedidos`"
+                    },
+                    {
+                      "name": "total_clientes",
+                      "expression": "`total_clientes`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Distribución por Departamento"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "department"
+                  },
+                  {
+                    "fieldName": "total_unidades"
+                  },
+                  {
+                    "fieldName": "total_pedidos"
+                  },
+                  {
+                    "fieldName": "total_clientes"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 20,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "tabla_clientes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_clientes",
+                  "fields": [
+                    {
+                      "name": "user_id",
+                      "expression": "`user_id`"
+                    },
+                    {
+                      "name": "total_pedidos",
+                      "expression": "`total_pedidos`"
+                    },
+                    {
+                      "name": "total_productos_comprados",
+                      "expression": "`total_productos_comprados`"
+                    },
+                    {
+                      "name": "productos_diferentes",
+                      "expression": "`productos_diferentes`"
+                    },
+                    {
+                      "name": "total_recompras",
+                      "expression": "`total_recompras`"
+                    },
+                    {
+                      "name": "porcentaje_recompra",
+                      "expression": "`porcentaje_recompra`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Ranking de Clientes"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "user_id"
+                  },
+                  {
+                    "fieldName": "total_pedidos"
+                  },
+                  {
+                    "fieldName": "total_productos_comprados"
+                  },
+                  {
+                    "fieldName": "productos_diferentes"
+                  },
+                  {
+                    "fieldName": "total_recompras"
+                  },
+                  {
+                    "fieldName": "porcentaje_recompra"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 20,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
